@@ -1,0 +1,37 @@
+{
+  "test_1_llm_access": {
+    "command": "curl -s http://localhost:4000/v1/chat/completions -H 'Content-Type: application/json' -d '{\"model\":\"claude-haiku-4-5-20251001\",\"messages\":[{\"role\":\"user\",\"content\":\"What is Agent Gateway? Answer in one sentence.\"}]}'",
+    "response": {
+      "model": "claude-haiku-4-5-20251001",
+      "service_tier": "standard",
+      "usage": {
+        "prompt_tokens": 17,
+        "completion_tokens": 38,
+        "total_tokens": 55
+      },
+      "choices": [
+        {
+          "message": {
+            "content": "Agent Gateway is a service or platform that acts as an intermediary to manage communication, authentication, and routing between agents (software or autonomous systems) and other services or resources.",
+            "role": "assistant"
+          },
+          "index": 0,
+          "finish_reason": "stop"
+        }
+      ],
+      "id": "msg_014NK4Gks2u7FaXRg7Xcmu1V",
+      "created": 1779515538,
+      "object": "chat.completion"
+    }
+  },
+  "test_2_rate_limiting": {
+    "policy": "localRateLimit: maxTokens=3, tokensPerFill=3, fillInterval=60s, type=requests",
+    "command": "for i in 1 2 3 4; do curl -s -o /dev/null -w 'HTTP Status: %{http_code}' http://localhost:4000/v1/chat/completions -H 'Content-Type: application/json' -d '{\"model\":\"claude-haiku-4-5-20251001\",\"messages\":[{\"role\":\"user\",\"content\":\"Hi\"}]}'; done",
+    "results": [
+      { "request": 1, "http_status": 200 },
+      { "request": 2, "http_status": 200 },
+      { "request": 3, "http_status": 200 },
+      { "request": 4, "http_status": 429, "note": "Too Many Requests — rate limit enforced" }
+    ]
+  }
+}
