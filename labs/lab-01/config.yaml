@@ -1,0 +1,22 @@
+binds:
+- port: 4000
+  listeners:
+  - routes:
+    - name: claude-route
+      backends:
+      - ai:
+          name: claude-backend
+          provider:
+            anthropic:
+              model: claude-haiku-4-5-20251001
+      policies:
+        backendAuth:
+          key: "$ANTHROPIC_API_KEY"
+        cors:
+          allowOrigins: ["*"]
+          allowHeaders: ["*"]
+        localRateLimit:
+          - maxTokens: 3
+            tokensPerFill: 3
+            fillInterval: 60s
+            type: requests
